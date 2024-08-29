@@ -2,6 +2,8 @@ import numpy as np
 import numpy.linalg as la
 import fmm3dbie as h3
 import fmm3dpy as fmm3d
+from helm_util import helm_dirichlet_kernel
+from matplotlib import pyplot as plt
 
 x = np.loadtxt('../geometries/sphere_192_o03.go3')
 
@@ -34,8 +36,8 @@ c = np.array([1 + 1j*0,1+1.1j])
 out = fmm3d.h3ddir(zk=zk,sources=xyz_out,targets=srcvals[0:3,:],charges=c,pgt=1)
 rhs = out.pottarg
 
-alpha = 0.0
-beta = -2.0
+alpha = 2.0
+beta =  0.0
 zpars = np.array([zk,alpha,beta],dtype=complex)
 eps = 0.51e-6
 
@@ -50,8 +52,24 @@ col_ind = np.arange(npts)+1
 
 xmat = h3.helm_comb_dir_fds_block_matgen(norders,ixyzs,iptype,srccoefs,srcvals,
   wts,eps,zpars,ifds,zfds,row_ind,col_ind,ifwrite)
-
 xmat = xmat - np.identity(npts)*zpars[2]/2.0
+
+#################
+# srcvals (12,N)
+# srcvals[0:2] xx, srcvals[9:12] nu normals
+# wts quadrature weights
+
+pts  = srcvals[:3]
+nu   = srcvals[9:]
+D    = np.diag(wts)
+xtmp = helm_dirichlet_kernel(pts.T,pts.T,zpars,nu.T)
+
+plt.spy(xtmp @ D - xmat,precision=1e-8)
+plt.savefig("tmp.pdf")
+
+# the difference is a sparse matrix
+
+##################
 sigma = la.solve(xmat,rhs)
 
 xyz_in = np.array([[0.17,-0.03,0.15],[0.13,-0.1,0.22]]).transpose()
