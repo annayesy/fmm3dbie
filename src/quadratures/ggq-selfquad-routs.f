@@ -1,5 +1,16 @@
-C
 C (c) Jim Bremer, all rights reserved
+C
+cc This program is free software; you can redistribute it and/or modify 
+cc it under the terms of the GNU General Public License as published by 
+cc the Free Software Foundation; either version 2 of the License, 
+cc or (at your option) any later version.
+cc This program is distributed in 
+cc the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+cc even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+cc PARTICULAR PURPOSE.  See the GNU General Public License for more 
+cc details. You should have received a copy of the GNU General Public 
+cc License along with this program; 
+cc if not, see <http://www.gnu.org/licenses/>.
 C
 C   edited by: Manas Rachh
 C

@@ -7,7 +7,7 @@ function submat= kern(zk,srcinfo,targinfo,type,varargin)
 % Let x be targets and y be sources for these formulas, with
 % n_x and n_y the corresponding unit normals at those points.
 %  
-% Kernels based on G(x,y) = exp(i*|x-y|)/(4*pi*|x-y|)
+% Kernels based on G(x,y) = exp(i*k*|x-y|)/(4*pi*|x-y|)
 %
 % D(x,y) = \nabla_{n_y} G(x,y)
 % S(x,y) = G(x,y)
@@ -16,7 +16,7 @@ function submat= kern(zk,srcinfo,targinfo,type,varargin)
 % Input:
 %   zk - complex number, Helmholtz wave number
 %   srcinfo - description of sources in ptinfo struct format, i.e.
-%                ptinfo.r - positions (2,:) array
+%                ptinfo.r - positions (3,:) array
 %                ptinfo.du - first derivative with respect to u in 
 %                     underlying parameterization (3,:)
 %                ptinfo.dv - first derivative with respect to u in 
@@ -48,7 +48,16 @@ function submat= kern(zk,srcinfo,targinfo,type,varargin)
 %            rows equals the number of targets and the
 %            number of columns equals the number of sources  
 %
-% see also HELM3D.GREEN
+% Examples
+%   s.r = [0;0;0]; s.n = [1;0;0];            % source struct
+%   t.r = [1;0;0];                           % target struct
+%   k = 10; S = exp(1i*k)/(4*pi); D = -(1i*k-1)*exp(1i*k)/(4*pi);
+%   helm3d.kern(k,s,t,'s') - S               % gives 0
+%   helm3d.kern(k,s,t,'d') - D               % gives 0
+%   eta = -1i*k; cfie = eta*S + 1.0*D;
+%   helm3d.kern(k,s,t,'c',eta,1.0) - cfie    % gives 0
+%
+% See also HELM3D.GREEN
   
 src = srcinfo.r;
 targ = targinfo.r;
