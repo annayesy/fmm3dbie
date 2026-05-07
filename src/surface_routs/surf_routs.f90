@@ -194,6 +194,7 @@ end subroutine surf_fun_error
 
 subroutine get_centroid_rads(npatches,norders,ixyzs,iptype,npts, &
     srccoefs,cms,rads)
+!f2py intent(out) cms,rads
 !
 !   this subroutine computes the centroid of each patch and the radius 
 !   of the bounding sphere centered at the centroid
