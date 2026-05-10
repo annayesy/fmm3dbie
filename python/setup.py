@@ -9,15 +9,17 @@ pkg_name = "bie-solvers3dpy"
 
 list_files=[]
 list_files.append('../src/helm_wrappers/helm_comb_dir.f')
+list_files.append('../src/lap_wrappers/lap_comb_dir.f90')
 list_files.append('../src/common/sparse_reps.f')
 list_files.append('../src/surface_routs/surf_routs.f90')
 list_files.append('../src/surface_routs/vtk_routs.f90')
-list_files.append('../src/stok_wrappers/stok_comb_vel.f')
+list_files.append('../src/stok_wrappers/stok_comb_vel.f90')
 list_files.append('../src/kernels/stok_kernels.f90')
 list_files.append('../src/surface_routs/write_go3.f90')
 list_files.append('../src/kernels/DPIE_kernels.f90')
+list_files.append('../src/quadratures/near_field_routs.f')
 
-FLIBS = os.getenv('FMMBIE_LIBS')
+FLIBS = os.getenv('FMMBIE_LIBS', '')
 FLIBS = FLIBS.rstrip().split(' ')
 FLIBS = list(filter(None,FLIBS))
 FLIBS.append('../lib-static/libfmm3dbie.a')
@@ -30,18 +32,26 @@ helm = []
 com = []
 surf = []
 stok = []
+lap = []
+lap.append('getnearquad_lap_comb_dir')
 helm.append('helm_comb_dir_fds_csc_mem')
 helm.append('helm_comb_dir_fds_csc_init')
 helm.append('helm_comb_dir_fds_csc_matgen')
 helm.append('helm_comb_dir_fds_block_mem')
 helm.append('helm_comb_dir_fds_block_init')
 helm.append('helm_comb_dir_fds_block_matgen')
-helm.append('lpcomp_helm_comb_dir')
+helm.append('helm_comb_dir_eval')
+helm.append('getnearquad_helm_comb_dir')
 com.append('conv_to_csc')
 com.append('orthonormalize_all')
+com.append('get_rfacs')
+com.append('findnearmem')
+com.append('findnear')
+com.append('get_iquad_rsc')
 surf.append('surf_vals_to_coefs')
 surf.append('get_qwts')
 surf.append('get_patch_id_uvs')
+surf.append('get_centroid_rads')
 surf.append('surf_vtk_plot')
 surf.append('surf_vtk_plot_scalar')
 surf.append('surf_vtk_plot_vec')
@@ -66,7 +76,7 @@ surf.append('get_patch_distortion')
 ext_helm = Extension(
     name='fmm3dbie',
     sources=list_files,
-    f2py_options=['only:']+helm+com+surf+stok+[':'],
+    f2py_options=['only:']+helm+lap+com+surf+stok+[':'],
 #    extra_f77_compile_args=FFLAGS,
     extra_f90_compile_args=["-std=legacy"],
     extra_link_args=FLIBS

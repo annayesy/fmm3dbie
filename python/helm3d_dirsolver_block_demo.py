@@ -60,7 +60,7 @@ ntarg = np.shape(xyz_in)[1]
 ipatch_id = -1*np.ones(2)
 uvs_targ = np.zeros((2,ntarg)) 
 
-pot_comp = h3.lpcomp_helm_comb_dir(norders,ixyzs,iptype,srccoefs,srcvals,
+pot_comp = h3.helm_comb_dir_eval(norders,ixyzs,iptype,srccoefs,srcvals,
    xyz_in,ipatch_id,uvs_targ,eps,zpars,sigma)
 
 out = fmm3d.h3ddir(zk=zk,sources=xyz_out,targets=xyz_in,charges=c,pgt=1)
@@ -74,4 +74,3 @@ h3.surf_vtk_plot(norders,ixyzs,iptype,srccoefs,srcvals,'sph.vtk','title1')
 rsigma = np.real(sigma)
 # plot surface with real part of density as solution
 h3.surf_vtk_plot_scalar(norders,ixyzs,iptype,srccoefs,srcvals,rsigma,'sph-sig.vtk','title1')
-

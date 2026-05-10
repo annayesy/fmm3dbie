@@ -191,6 +191,7 @@ c
 c
 c------------------------------------------------------------------      
       subroutine findnearmem(xyzs,ns,rads,ndt,targets,nt,nnz)
+cf2py intent(out) nnz
 c
 cc      identify all sources which are contained in 
 c       |xyzs(:,i)-targets(:,j)|<=rads(i).
@@ -423,6 +424,7 @@ c
 c-----------------------------------------------------
       subroutine findnear(xyzs,ns,rads,ndt,targets,nt,row_ptr,
      1       col_ind) 
+cf2py intent(in,out) row_ptr,col_ind
 c     
 cc      identify all sources which are contained in 
 c       |xyzs(:,i)-targets(:,j)|<=rads(i).
@@ -764,6 +766,7 @@ c
 c-----------------------------------------------------------
       subroutine get_iquad_rsc(npatches,ixyzs,npts,nnz,row_ptr,
      1    col_ind,iquad)
+cf2py intent(out) iquad
 c
 c       given an row sparse compressed format from targets
 c       to patches, and number of discretization nodes on patches
@@ -824,6 +827,7 @@ c
 c
 c
       subroutine get_rfacs(norder,iptype,rfac,rfac0)
+cf2py intent(out) rfac,rfac0
 c
 c
 c       this subroutine gets the factors for defining
