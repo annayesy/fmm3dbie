@@ -11,6 +11,8 @@ subroutine get_far_order(eps,npatches,norders,ixyzs,iptype,cms,rads,&
   npts,srccoefs, ndtarg, ntarg,targvals,ikerorder,zk,nnz,row_ptr, &
   col_ind,rfac,nfars,ixyzso)
 
+!f2py intent(out) nfars,ixyzso
+
 !
 !
 !  For a given surface, this subroutine computes the 
@@ -95,7 +97,8 @@ subroutine get_far_order(eps,npatches,norders,ixyzs,iptype,cms,rads,&
 !
 !
   implicit none
-  integer *8 npatches,norders(npatches),ixyzs(npatches),iptype(npatches)
+  integer *8 npatches
+  integer *8 norders(npatches),ixyzs(npatches+1),iptype(npatches)
   integer *8 npts,ikerorder, ntmp
   real *8 cms(3,npatches),rads(npatches),srccoefs(9,npts)
   real *8 dpars
