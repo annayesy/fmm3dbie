@@ -509,6 +509,84 @@ end subroutine oversample_fun_surf
 !
 !
 !
+subroutine oversample_fun_surf_adjoint(nd,npatches,norders,ixyzs,iptype, &
+   npts,uover,nfars,ixyzso,nptso,u)
+!
+!  Apply the Euclidean adjoint of oversample_fun_surf.
+!
+!  If oversample_fun_surf applies uover = T*u patch-by-patch, this routine
+!  applies u = T^* uover using the same interpolation matrices.
+!
+  implicit none
+  integer *8, intent(in) :: nd,npatches,npts,nptso
+  integer *8, intent(in) :: norders(npatches),ixyzs(npatches+1)
+  integer *8, intent(in) :: iptype(npatches)
+  integer *8, intent(in) :: nfars(npatches),ixyzso(npatches+1)
+  complex *16, intent(in) :: uover(nd,nptso)
+  complex *16, intent(out) :: u(nd,npts)
+  integer *8 i,istart,istarto,npols,npolso
+
+  u = 0
+  do i=1,npatches
+    istart = ixyzs(i)
+    istarto = ixyzso(i)
+    npols = ixyzs(i+1)-ixyzs(i)
+    npolso = ixyzso(i+1)-ixyzso(i)
+    call oversample_fun_guru_adjoint(nd,norders(i),npols,iptype(i), &
+      uover(1,istarto),nfars(i),npolso,u(1,istart))
+  enddo
+
+end subroutine oversample_fun_surf_adjoint
+!
+!
+!
+!
+subroutine oversample_fun_guru_adjoint(nd,norder,npols,iptype,uover,nfar, &
+    nfar_pols,u)
+!
+!  Apply the Euclidean adjoint of oversample_fun_guru on one patch.
+!
+  implicit none
+  integer *8, intent(in) :: nd,norder,npols,iptype,nfar,nfar_pols
+  complex *16, intent(in) :: uover(nd,nfar_pols)
+  complex *16, intent(out) :: u(nd,npols)
+
+  real *8, allocatable :: pmat(:,:),uvs(:,:),umat0(:,:),vmat0(:,:)
+  real *8, allocatable :: uvs0(:,:),wts0(:)
+  complex *16, allocatable :: pmatz(:,:),umat0z(:,:),ucoefs(:,:)
+  complex *16 zone,zzero
+  integer *8 i
+
+  zone = (1.0d0,0.0d0)
+  zzero = (0.0d0,0.0d0)
+
+  allocate(uvs(2,nfar_pols))
+  call get_disc_nodes(nfar,nfar_pols,iptype,uvs)
+
+  allocate(umat0(npols,npols),vmat0(npols,npols),uvs0(2,npols))
+  allocate(wts0(npols))
+  call get_disc_exps(norder,npols,iptype,uvs0,umat0,vmat0,wts0)
+
+  allocate(pmat(npols,nfar_pols))
+  do i=1,nfar_pols
+    call get_basis_pols(uvs(1,i),norder,npols,iptype,pmat(1,i))
+  enddo
+
+  allocate(pmatz(npols,nfar_pols),umat0z(npols,npols))
+  pmatz = dcmplx(pmat,0.0d0)
+  umat0z = dcmplx(umat0,0.0d0)
+
+  allocate(ucoefs(nd,npols))
+  call zgemm_guru('n','t',nd,npols,nfar_pols,zone,uover,nd, &
+    pmatz,npols,zzero,ucoefs,nd)
+  call zgemm_guru('n','n',nd,npols,npols,zone,ucoefs,nd, &
+    umat0z,npols,zzero,u,nd)
+
+end subroutine oversample_fun_guru_adjoint
+!
+!
+!
+!
 subroutine oversample_fun_guru(nd,norder,npols,iptype,u,nfar,nfar_pols, &
     uover)
 !
@@ -3276,5 +3354,4 @@ subroutine getgeominfo(npatches, patchpnt, par1, par2, par3, par4, &
 
   return
 end subroutine getgeominfo
-
 
