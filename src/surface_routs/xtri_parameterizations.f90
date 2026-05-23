@@ -7,6 +7,7 @@ subroutine xtri_wtorus_eval(itri, u, v, xyz, dxyzduv, triainfo, &
   implicit integer *8 (i-n)
   real *8 :: xyz(3), dxyzduv(3,2), triainfo(3,3,*), scales(3)
   real *8 :: radii(3), dxyzdst(3,2)
+  real *8 :: p4(5)
 
   !
   ! project the triangle itri in triainfo onto a torus
@@ -39,11 +40,16 @@ subroutine xtri_wtorus_eval(itri, u, v, xyz, dxyzduv, triainfo, &
   y2=triainfo(2,3,itri)
   z2=triainfo(3,3,itri)
 
-  nosc = p4
+  nosc = p4(1)
 
   s = x0+u*(x1-x0)+v*(x2-x0)
   t = y0+u*(y1-y0)+v*(y2-y0)
   call wtorus_eval(s, t, radii, scales, nosc, xyz, dxyzdst)
+
+  xyz(1) = (xyz(1)-p4(2))/p4(5)
+  xyz(2) = (xyz(2)-p4(3))/p4(5)
+  xyz(3) = (xyz(3)-p4(4))/p4(5)
+  dxyzdst(1:3,1:2) = dxyzdst(1:3,1:2)/p4(5)
 
   dsdu = (x1-x0)
   dsdv = (x2-x0)
@@ -1947,6 +1953,5 @@ subroutine xtri_refine4_flat(verts, verts1, verts2, verts3, verts4)
 
   return
 end subroutine xtri_refine4_flat
-
 
 

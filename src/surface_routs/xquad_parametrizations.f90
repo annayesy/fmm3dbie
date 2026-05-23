@@ -9,6 +9,7 @@ subroutine xquad_wtorus_eval(iquad, u, v, xyz, dxyzduv, quadinfo, &
   implicit integer *8 (i-n)
   real *8 :: xyz(3), dxyzduv(3,2), quadinfo(3,3,*), scales(3)
   real *8 :: radii(3), dxyzdst(3,2)
+  real *8 :: p4(5)
 
   !
   ! project the quad iquad in quadinfo onto a torus
@@ -42,13 +43,18 @@ subroutine xquad_wtorus_eval(iquad, u, v, xyz, dxyzduv, quadinfo, &
   z2=quadinfo(3,3,iquad)
 
 
-  nosc = p4
+  nosc = p4(1)
 
 
   s = x0+(1.0d0+u)/2*(x1-x0)+(1.0d0+v)/2*(x2-x0)
   t = y0+(1.0d0+u)/2*(y1-y0)+(1.0d0+v)/2*(y2-y0)
 
   call wtorus_eval(s, t, radii, scales, nosc, xyz, dxyzdst)
+
+  xyz(1) = (xyz(1)-p4(2))/p4(5)
+  xyz(2) = (xyz(2)-p4(3))/p4(5)
+  xyz(3) = (xyz(3)-p4(4))/p4(5)
+  dxyzdst(1:3,1:2) = dxyzdst(1:3,1:2)/p4(5)
 
   dsdu = (x1-x0)/2
   dsdv = (x2-x0)/2

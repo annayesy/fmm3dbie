@@ -36,7 +36,7 @@ subroutine write_wtorus(fname,radii,scales,nosc,nu,nv,norder,pmax)
   integer *8, intent(in) :: nu,nv,nosc,norder
   real *8, intent(out) :: pmax
 
-  real *8, target :: p4(1)
+  real *8, target :: p4(5)
   real *8, pointer :: ptr1,ptr2,ptr3,ptr4 
   real *8, allocatable, target :: triaskel(:,:,:)
   real *8, allocatable :: pdis(:),wts(:)
@@ -49,6 +49,10 @@ subroutine write_wtorus(fname,radii,scales,nosc,nu,nv,norder,pmax)
   external xtri_wtorus_eval
 
   real *8, allocatable :: uvs(:,:),umatr(:,:),vmatr(:,:),wts0(:)
+  real *8 xcenter,ycenter,zcenter,boxscale
+  real *8 xmin,xmax,ymin,ymax,zmin,zmax,xspan,yspan,zspan
+  real *8 s0,rrp,rrm,xtmp,ytmp
+  integer *8 nbox,ibox
  
   npols = (norder+1)*(norder+2)/2
   allocate(uvs(2,npols),umatr(npols,npols),vmatr(npols,npols), &
@@ -70,7 +74,47 @@ subroutine write_wtorus(fname,radii,scales,nosc,nu,nv,norder,pmax)
   call xtri_rectmesh_ani(umin,umax,vmin,vmax,nu,nv,nover,npatches, &
     npatches,triaskel)
 
+  nbox = max(10000,2000*nosc)
+  s0 = 0
+  rrp = radii(2) + radii(1) + radii(3)*cos(nosc*s0)
+  rrm = radii(2) - radii(1) + radii(3)*cos(nosc*s0)
+  xmin = min(scales(1)*rrp*cos(s0),scales(1)*rrm*cos(s0))
+  xmax = max(scales(1)*rrp*cos(s0),scales(1)*rrm*cos(s0))
+  ymin = min(scales(2)*rrp*sin(s0),scales(2)*rrm*sin(s0))
+  ymax = max(scales(2)*rrp*sin(s0),scales(2)*rrm*sin(s0))
+
+  do ibox=1,nbox-1
+    s0 = 2*pi*ibox/nbox
+    rrp = radii(2) + radii(1) + radii(3)*cos(nosc*s0)
+    rrm = radii(2) - radii(1) + radii(3)*cos(nosc*s0)
+    xtmp = scales(1)*rrp*cos(s0)
+    xmin = min(xmin,xtmp)
+    xmax = max(xmax,xtmp)
+    ytmp = scales(2)*rrp*sin(s0)
+    ymin = min(ymin,ytmp)
+    ymax = max(ymax,ytmp)
+    xtmp = scales(1)*rrm*cos(s0)
+    xmin = min(xmin,xtmp)
+    xmax = max(xmax,xtmp)
+    ytmp = scales(2)*rrm*sin(s0)
+    ymin = min(ymin,ytmp)
+    ymax = max(ymax,ytmp)
+  enddo
+  zmin = -abs(scales(3)*radii(1))
+  zmax = abs(scales(3)*radii(1))
+  xcenter = 0.5d0*(xmin+xmax)
+  ycenter = 0.5d0*(ymin+ymax)
+  zcenter = 0.5d0*(zmin+zmax)
+  xspan = xmax-xmin
+  yspan = ymax-ymin
+  zspan = zmax-zmin
+  boxscale = max(xspan,max(yspan,zspan))
+
   p4(1) = nosc + 0.0d0
+  p4(2) = xcenter
+  p4(3) = ycenter
+  p4(4) = zcenter
+  p4(5) = boxscale
   
   ptr1 => triaskel(1,1,1)
   ptr2 => radii(1)
@@ -140,7 +184,7 @@ subroutine get_wtorus_geom(radii,scales,nosc,nu,nv,npatches, &
 
   real *8, intent(out) :: srcvals(12,npts),srccoefs(9,npts),wts(npts)
 
-  real *8, target :: p4(1)
+  real *8, target :: p4(5)
   real *8, pointer :: ptr1,ptr2,ptr3,ptr4 
   real *8, allocatable, target :: triaskel(:,:,:)
   
@@ -149,6 +193,10 @@ subroutine get_wtorus_geom(radii,scales,nosc,nu,nv,npatches, &
   procedure (), pointer :: xtri_geometry
 
   real *8, allocatable :: uvs(:,:),umatr(:,:),vmatr(:,:),wts0(:)
+  real *8 xcenter,ycenter,zcenter,boxscale
+  real *8 xmin,xmax,ymin,ymax,zmin,zmax,xspan,yspan,zspan
+  real *8 s0,rrp,rrm,xtmp,ytmp
+  integer *8 nbox,ibox
  
   npols = (norder+1)*(norder+2)/2
   allocate(uvs(2,npols),umatr(npols,npols),vmatr(npols,npols), &
@@ -168,7 +216,47 @@ subroutine get_wtorus_geom(radii,scales,nosc,nu,nv,npatches, &
   call xtri_rectmesh_ani(umin,umax,vmin,vmax,nu,nv,nover,npatches, &
     npatches,triaskel)
 
+  nbox = max(10000,2000*nosc)
+  s0 = 0
+  rrp = radii(2) + radii(1) + radii(3)*cos(nosc*s0)
+  rrm = radii(2) - radii(1) + radii(3)*cos(nosc*s0)
+  xmin = min(scales(1)*rrp*cos(s0),scales(1)*rrm*cos(s0))
+  xmax = max(scales(1)*rrp*cos(s0),scales(1)*rrm*cos(s0))
+  ymin = min(scales(2)*rrp*sin(s0),scales(2)*rrm*sin(s0))
+  ymax = max(scales(2)*rrp*sin(s0),scales(2)*rrm*sin(s0))
+
+  do ibox=1,nbox-1
+    s0 = 2*pi*ibox/nbox
+    rrp = radii(2) + radii(1) + radii(3)*cos(nosc*s0)
+    rrm = radii(2) - radii(1) + radii(3)*cos(nosc*s0)
+    xtmp = scales(1)*rrp*cos(s0)
+    xmin = min(xmin,xtmp)
+    xmax = max(xmax,xtmp)
+    ytmp = scales(2)*rrp*sin(s0)
+    ymin = min(ymin,ytmp)
+    ymax = max(ymax,ytmp)
+    xtmp = scales(1)*rrm*cos(s0)
+    xmin = min(xmin,xtmp)
+    xmax = max(xmax,xtmp)
+    ytmp = scales(2)*rrm*sin(s0)
+    ymin = min(ymin,ytmp)
+    ymax = max(ymax,ytmp)
+  enddo
+  zmin = -abs(scales(3)*radii(1))
+  zmax = abs(scales(3)*radii(1))
+  xcenter = 0.5d0*(xmin+xmax)
+  ycenter = 0.5d0*(ymin+ymax)
+  zcenter = 0.5d0*(zmin+zmax)
+  xspan = xmax-xmin
+  yspan = ymax-ymin
+  zspan = zmax-zmin
+  boxscale = max(xspan,max(yspan,zspan))
+
   p4(1) = nosc + 0.0d0
+  p4(2) = xcenter
+  p4(3) = ycenter
+  p4(4) = zcenter
+  p4(5) = boxscale
   
   ptr1 => triaskel(1,1,1)
   ptr2 => radii(1)
@@ -257,5 +345,3 @@ subroutine get_sphere_geom(nref,npatches, &
   call get_qwts(npatches,norders,ixyzs,iptype,npts,srcvals,wts)
 
 end subroutine get_sphere_geom
-
-
